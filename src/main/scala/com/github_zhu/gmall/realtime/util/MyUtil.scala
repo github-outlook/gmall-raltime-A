@@ -75,7 +75,7 @@ object MyUtil {
   }
 
   //actorList: List[Long,String]
-  //11
+  //1122
   case class Movie(id: Long, name: String, doubanScore: Double) {}
 
   //  case class Movie(id: Long, name: String, doubanScore: Double, actorList: ListBuffer[Map[Long, String]]) {}
