@@ -19,7 +19,7 @@ import scala.collection.mutable.ListBuffer
  * @ModifiedBy:
  *
  */
-object MyUtil {
+object MyEsUtil {
 
   private var factory: JestClientFactory = null
 
