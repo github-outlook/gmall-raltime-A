@@ -2,9 +2,10 @@ package com.github_zhu.gmall.realtime.util
 
 import java.util
 
+import com.github_zhu.gmall.realtime.util.bean.DauInfo
 import io.searchbox.client.config.HttpClientConfig
 import io.searchbox.client.{JestClient, JestClientFactory}
-import io.searchbox.core.{Index, Search, SearchResult}
+import io.searchbox.core.{Bulk, BulkResult, Index, Search, SearchResult}
 import org.elasticsearch.index.engine.Engine.Searcher
 import org.elasticsearch.index.query.MatchQueryBuilder
 import org.elasticsearch.search.builder.SearchSourceBuilder
@@ -20,6 +21,28 @@ import scala.collection.mutable.ListBuffer
  *
  */
 object MyEsUtil {
+
+  // bath operation批插入（Bulk）
+  def saveBulk(dataList: List[(String, DauInfo)], indexName: String) = {
+    if (dataList != null && dataList.size > 0) {
+
+      val jest: JestClient = getClient
+      val bulkBuilder = new Bulk.Builder() //批处理对象
+      bulkBuilder.defaultIndex(indexName).defaultType("_doc")
+
+      for ((id, data) <- dataList) { //遍历创建action
+        val index: Index = new Index.Builder(data).id(id).build()
+        bulkBuilder.addAction(index)
+      }
+      val bulk: Bulk = bulkBuilder.build()
+
+      val items: util.List[BulkResult#BulkResultItem] = jest.execute(bulk).getItems
+
+      println("以保存" + items.size() + "条数据")
+      jest.close()
+    }
+  }
+
 
   private var factory: JestClientFactory = null
 
@@ -54,22 +77,22 @@ object MyEsUtil {
     val search: Search = new Search.Builder(query).addIndex("movie_chn").addType("movie").build()
     val builder: SearchSourceBuilder = new SearchSourceBuilder
 
-    builder.query(new MatchQueryBuilder("name","红海战役"))
-    builder.sort("doubanScore",SortOrder.ASC)
+    builder.query(new MatchQueryBuilder("name", "红海战役"))
+    builder.sort("doubanScore", SortOrder.ASC)
     val query2: String = builder.toString
 
     val search2: Search = new Search.Builder(query2).addIndex("movie_chn").addType("movie").build()
     val searchRes: SearchResult = jest.execute(search2)
 
     import scala.collection.JavaConversions._
-      val movieList: util.List[SearchResult#Hit[Movie, Void]] = searchRes.getHits(classOf[Movie])
-      val movies: ListBuffer[Movie] = ListBuffer[Movie]()
+    val movieList: util.List[SearchResult#Hit[Movie, Void]] = searchRes.getHits(classOf[Movie])
+    val movies: ListBuffer[Movie] = ListBuffer[Movie]()
 
-      for (hit <- movieList) {
-        val movie: Movie = hit.source
-        movies += movie
-      }
-      println(movies.mkString(","))
+    for (hit <- movieList) {
+      val movie: Movie = hit.source
+      movies += movie
+    }
+    println(movies.mkString(","))
 
     jest.close()
   }
@@ -80,6 +103,6 @@ object MyEsUtil {
 
   //  case class Movie(id: Long, name: String, doubanScore: Double, actorList: ListBuffer[Map[Long, String]]) {}
 
-    case class Movie1(id: Long, name: String, doubanScore: Double, actorList: ListBuffer[Map[(String, Long), (String, String)]]) {}
+  case class Movie1(id: Long, name: String, doubanScore: Double, actorList: ListBuffer[Map[(String, Long), (String, String)]]) {}
 
 }
