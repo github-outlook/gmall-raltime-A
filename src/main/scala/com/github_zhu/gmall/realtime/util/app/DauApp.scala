@@ -43,8 +43,8 @@ object DauApp {
       startInputDstram = MyKafkaUtil.getKafkaStream(topic, ssc, groupId)
     }
 
-//    startInputDstram.cache()
-//    startInputDstram.map(_.value()).print(100)
+    //    startInputDstram.cache()
+    //    startInputDstram.map(_.value()).print(100)
     //获取本批次偏移量的移动后的新位置
     var startOffsetRanges: Array[OffsetRange] = null
     val startupInputGetOffsetDstream: DStream[ConsumerRecord[String, String]] = startInputDstram.transform { rdd =>
@@ -88,11 +88,15 @@ object DauApp {
     //    }
 
     val startJsonObjWithDauDstream: DStream[JSONObject] = startJsonDstream.mapPartitions { jsonObjItr =>
+
       val jedis: Jedis = RedisUtil.getJedisCilent
 
       val listJsonObj: List[JSONObject] = jsonObjItr.toList //jsonObjItr只能迭代一次，
+
       println("过滤前" + listJsonObj.size)
+
       val jsonObjFilteredList: ListBuffer[JSONObject] = new ListBuffer[JSONObject]()
+
       for (jsonObj <- listJsonObj) {
         val dateStr: String = new SimpleDateFormat("yyyyMMdd").format(jsonObj.getLong("ts"))
         val dauKey = "dau" + ":" + dateStr
@@ -107,8 +111,7 @@ object DauApp {
       //转换返回
       jsonObjFilteredList.toIterator
     }
-//    startJsonObjWithDauDstream.print(1000)
-
+    //    startJsonObjWithDauDstream.print(1000)
 
     //将数据插入 gmall_dau_info xxxx 中
     //1.转换结构
@@ -132,22 +135,20 @@ object DauApp {
     //2.将数据插入  gmall_dau_info xxxx 中
     dauInfoDstream.foreachRDD { rdd =>
       rdd.foreachPartition { rddItr =>
+
         //观察偏移量变化
         val offsetRange: OffsetRange = startOffsetRanges(TaskContext.getPartitionId())
         println("偏移量：" + offsetRange.fromOffset + "->" + offsetRange.untilOffset)
-        //写入ES
-        val dataList: List[(String, DauInfo)] = rddItr.toList.map { //存放（key：mid , value:dauInfo）
-          dauInfo => (dauInfo.mid, dauInfo)
-        }
+
+        //写入ES//存放（key：mid , value:dauInfo）
+        val dataList: List[(String, DauInfo)] = rddItr.toList.map { dauInfo => (dauInfo.mid, dauInfo) }
         val dt = new SimpleDateFormat("yyyyMMdd").format(new Date())
         val indexName = "gmall1122_dau_info_" + dt
         MyEsUtil.saveBulk(dataList, indexName)
       }
-
       //保存偏移量
       OffsetManager.saveOffset(groupId, topic, startOffsetRanges)
     }
-
     ssc.start()
     ssc.awaitTermination()
   }
