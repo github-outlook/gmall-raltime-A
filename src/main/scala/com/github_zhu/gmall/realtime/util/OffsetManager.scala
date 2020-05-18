@@ -45,7 +45,7 @@ object OffsetManager {
         if (offsetRang.fromOffset < offsetRang.untilOffset) {
           needSaveFlag = true
         }
-        println("分区：" + offsetRang.partition + " from" + offsetRang.fromOffset + "->" + offsetRang.untilOffset)
+//        println("分区：" + offsetRang.partition + " from" + offsetRang.fromOffset + "->" + offsetRang.untilOffset)
         offsetMap.put(offsetRang.partition.toString, offsetRang.untilOffset.toString)
       }
       //把每个分区的新的的偏移量写入到redis

@@ -102,6 +102,7 @@ object DauApp {
         val dauKey = "dau" + ":" + dateStr
         val mid: String = jsonObj.getJSONObject("common").getString("mid")
         val isFirstFlag: lang.Long = jedis.sadd(dauKey, mid)
+        jedis.expire(dauKey,3600*24*7)
         if (isFirstFlag == 1L) {
           jsonObjFilteredList += jsonObj
         }
@@ -143,8 +144,9 @@ object DauApp {
         //写入ES//存放（key：mid , value:dauInfo）
         val dataList: List[(String, DauInfo)] = rddItr.toList.map { dauInfo => (dauInfo.mid, dauInfo) }
         val dt = new SimpleDateFormat("yyyyMMdd").format(new Date())
-        val indexName = "gmall1122_dau_info_" + dt
+        val indexName = "gmall_dau_info_" + dt
         MyEsUtil.saveBulk(dataList, indexName)
+
       }
       //保存偏移量
       OffsetManager.saveOffset(groupId, topic, startOffsetRanges)
