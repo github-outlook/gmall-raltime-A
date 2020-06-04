@@ -1,4 +1,4 @@
-package com.github_zhu.gmall.realtime.util.bean
+package com.github_zhu.gmall.realtime.bean
 
 /**
  * @Author: github_zhu

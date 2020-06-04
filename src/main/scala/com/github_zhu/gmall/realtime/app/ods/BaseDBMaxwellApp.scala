@@ -1,4 +1,4 @@
-package com.github_zhu.gmall.realtime.util.app.ods
+package com.github_zhu.gmall.realtime.app.ods
 
 import com.alibaba.fastjson.{JSON, JSONArray, JSONObject}
 import com.github_zhu.gmall.realtime.util.{MyKafkaSink, MyKafkaUtil, OffsetManager}
@@ -49,7 +49,7 @@ object BaseDBMaxwellApp {
 
     dbJsonObjDstream.foreachRDD { rdd =>
       rdd.foreachPartition { jsonObjItr =>
-        for (jsonObj <- jsonObjItr) {
+       /* for (jsonObj <- jsonObjItr) {
           val dataObj = jsonObj.getJSONObject("data")
           val tableName: String = jsonObj.getString("table")
           val id: String = dataObj.getString("id")
@@ -57,11 +57,48 @@ object BaseDBMaxwellApp {
 
           //          if (!jsonObj.getString("type").equals("bootstrap-complete") && !jsonObj.getString("type").equals("bootstrap-start")) {
           if (dataObj != null && dataObj.size() > 0) {
-            if ((tableName == "order_info" && jsonObj.getString("type").equals("insert")) || (tableName == "base_province")) {
+            if  (dataObj != null && !dataObj.isEmpty && !jsonObj.getString("type").equals("delete"))
+              if ((tableName == "order_info" && jsonObj.getString("type").equals("insert"))
+                || (tableName == "base_province")
+                ||(tableName == "user_info")
+                ||(tableName == "spu_info")
+                ||(tableName == "sku_info")
+                ||(tableName == "base_category3")
+                ||(tableName == "base_trademark")
+                ||((tableName == "order_detail") )
+              ) {
+                if(tableName == "user_info"||tableName == "user_detail"){
+                  Thread.sleep(100)
+                }
               MyKafkaSink.send(topic, id, dataObj.toString)
             }
           }
+        }*/
+
+        for (jsonObj <- jsonObjItr) {
+          val dataObj: JSONObject = jsonObj.getJSONObject("data")
+          val tableName = jsonObj.getString("table")
+          val id = dataObj.getString("id")
+          val topic = "ODS_T_" + tableName.toUpperCase
+          if (dataObj != null && !dataObj.isEmpty && !jsonObj.getString("type").equals("delete"))
+            if ((tableName == "order_info" && jsonObj.getString("type").equals("insert"))
+              || (tableName == "base_province")
+              ||(tableName == "user_info")
+              ||(tableName == "spu_info")
+              ||(tableName == "sku_info")
+              ||(tableName == "base_category3")
+              ||(tableName == "base_trademark")
+              ||((tableName == "order_detail") )
+            ) {
+              //              if(tableName == "order_info"|| tableName == "order_detail" ){
+              //                  Thread.sleep(300)
+              //              }
+              MyKafkaSink.send(topic, id, dataObj.toJSONString)
+            }
+
+
         }
+
       }
     }
     OffsetManager.saveOffset(groupId, topic, offsetRanges)

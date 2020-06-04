@@ -1,4 +1,4 @@
-package com.github_zhu.gmall.realtime.util.app.ods
+package com.github_zhu.gmall.realtime.app.ods
 
 import com.alibaba.fastjson.{JSON, JSONArray, JSONObject}
 import com.github_zhu.gmall.realtime.util.{MyKafkaSink, MyKafkaUtil, OffsetManager}

@@ -2,7 +2,7 @@ package com.github_zhu.gmall.realtime.util
 
 import java.util
 
-import com.github_zhu.gmall.realtime.util.bean.DauInfo
+import com.github_zhu.gmall.realtime.bean.DauInfo
 import io.searchbox.client.config.HttpClientConfig
 import io.searchbox.client.{JestClient, JestClientFactory}
 import io.searchbox.core.{Bulk, BulkResult, Index, Search, SearchResult}
@@ -23,7 +23,7 @@ import scala.collection.mutable.ListBuffer
 object MyEsUtil {
 
   // bath operation批插入（Bulk）
-  def saveBulk(dataList: List[(String, DauInfo)], indexName: String) = {
+  def saveBulk(dataList: List[(String, AnyRef)], indexName: String) = {
     if (dataList != null && dataList.size > 0) {
 
       val jest: JestClient = getClient

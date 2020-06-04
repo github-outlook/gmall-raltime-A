@@ -1,7 +1,7 @@
-package com.github_zhu.gmall.realtime.util.app.dim
+package com.github_zhu.gmall.realtime.app.dim
 
 import com.alibaba.fastjson.{JSON, JSONObject}
-import com.github_zhu.gmall.realtime.util.bean.BaseProvince
+import com.github_zhu.gmall.realtime.bean.dim.BaseProvince
 import com.github_zhu.gmall.realtime.util.{MyKafkaUtil, OffsetManager}
 import org.apache.hadoop.conf.Configuration
 import org.apache.kafka.clients.consumer.ConsumerRecord

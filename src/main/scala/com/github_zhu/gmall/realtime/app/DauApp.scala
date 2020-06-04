@@ -1,11 +1,11 @@
-package com.github_zhu.gmall.realtime.util.app
+package com.github_zhu.gmall.realtime.app
 
 import java.lang
 import java.text.SimpleDateFormat
 import java.util.Date
 
 import com.alibaba.fastjson.{JSON, JSONObject}
-import com.github_zhu.gmall.realtime.util.bean.DauInfo
+import com.github_zhu.gmall.realtime.bean.DauInfo
 import com.github_zhu.gmall.realtime.util.{MyEsUtil, MyKafkaUtil, OffsetManager, RedisUtil}
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
